@@ -1,76 +1,25 @@
 #define DIR     8
 #define STEP    9
-#define DIRTIME 60000
+#define STEPTIME 1
+#define NUMSTEPS 26667 // 200 steps per revolution, gearbox 100:1, gears 24:32
+
+unsigned stepNum = 0; // which step of the circle are we on
 
 void setup() {
   pinMode(DIR,OUTPUT);
   pinMode(STEP,OUTPUT);
-  setPwmFrequency(STEP,64);
-  analogWrite(STEP,128);
 }
 
 void loop() {
-  digitalWrite(DIR,LOW);
-  delay(DIRTIME);
-  digitalWrite(DIR,HIGH);
-  delay(DIRTIME);
-}
+  if (digitalRead(DIR)) { // reverse direction
+    digitalWrite(DIR,LOW);
+  } else {
+    digitalWrite(DIR,HIGH);
+  }
 
-void setPwmFrequency(int pin, int divisor) {
-  byte mode;
-  if(pin == 5 || pin == 6 || pin == 9 || pin == 10) {
-    switch(divisor) {
-    case 1: 
-      mode = 0x01; 
-      break;
-    case 8: 
-      mode = 0x02; 
-      break;
-    case 64: 
-      mode = 0x03; 
-      break;
-    case 256: 
-      mode = 0x04; 
-      break;
-    case 1024: 
-      mode = 0x05; 
-      break;
-    default: 
-      return;
-    }
-    if(pin == 5 || pin == 6) {
-      TCCR0B = TCCR0B & 0b11111000 | mode;
-    } 
-    else {
-      TCCR1B = TCCR1B & 0b11111000 | mode;
-    }
-  } 
-  else if(pin == 3 || pin == 11) {
-    switch(divisor) {
-    case 1: 
-      mode = 0x01; 
-      break;
-    case 8: 
-      mode = 0x02; 
-      break;
-    case 32: 
-      mode = 0x03; 
-      break;
-    case 64: 
-      mode = 0x04; 
-      break;
-    case 128: 
-      mode = 0x05; 
-      break;
-    case 256: 
-      mode = 0x06; 
-      break;
-    case 1024: 
-      mode = 0x7; 
-      break;
-    default: 
-      return;
-    }
-    TCCR2B = TCCR2B & 0b11111000 | mode;
+  for (stepNum = 0; stepNum < NUMSTEPS; stepNum++) {
+    digitalWrite(STEP,HIGH);
+    digitalWrite(STEP,LOW);
+    delay(STEPTIME);
   }
 }
